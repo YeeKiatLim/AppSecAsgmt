@@ -7,47 +7,64 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Net;
 using System.IO;
 using System.Text.Json;
+using static System.Net.WebRequestMethods;
+using System.Security.Claims;
+using System;
 
 namespace Assignment_1.Pages
 {
     public class LoginModel : PageModel
     {
-		private readonly SignInManager<ApplicationUser> signInManager;
+		private readonly ILogger<LoginModel> _logger;
+        private readonly IHttpContextAccessor contxt;
+        private readonly SignInManager<ApplicationUser> signInManager;
+		private readonly AuthDbContext authDbContext;
 		[BindProperty]
 		public Login LModel { get; set; }
 		public class MyObject
 		{
-			public string success { get; set; }
+			public bool success { get; set; }
 			public List<String> ErrorMessage { get; set; }
 		}
-		
-		public LoginModel(SignInManager<ApplicationUser> signInManager)
+
+		public LoginModel(ILogger<LoginModel> logger, IHttpContextAccessor httpContextAccessor, SignInManager<ApplicationUser> signInManager, AuthDbContext authDbContext)
 		{
+			_logger = logger;
+			contxt = httpContextAccessor;
 			this.signInManager = signInManager;
+			this.authDbContext = authDbContext;
 		}
 
-		public bool ValidateCaptcha()
+		public async Task<bool> ValidateCaptchaAsync()
 		{
 			bool result = true;
 			string recaptchaResponse = Request.Form["g-recaptcha-response"];
-			HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://www.google.com/recaptcha/api/siteverify?secret=6LeBfGApAAAAAJPdCro98ckS5gM6kTOKWdG5WMWS &response=" + recaptchaResponse);
-
-			try
+			using (HttpClient client = new HttpClient())
 			{
-				using (WebResponse wResponse = req.GetResponse())
-				{ 
-					using (StreamReader readStream = new StreamReader(wResponse.GetResponseStream()))
+				var secret = "6LeBfGApAAAAAJPdCro98ckS5gM6kTOKWdG5WMWS";
+				var uri = $"https://www.google.com/recaptcha/api/siteverify?secret={secret}&response={recaptchaResponse}";
+				try
+				{
+					HttpResponseMessage response = await client.GetAsync(uri);
+
+					if (response.IsSuccessStatusCode)
 					{
-						string jsonResponse = readStream.ReadToEnd();
+						string jsonResponse = await response.Content.ReadAsStringAsync();
 						MyObject jsonObject = JsonSerializer.Deserialize<MyObject>(jsonResponse);
 						result = Convert.ToBoolean(jsonObject.success);
 					}
+					else
+					{
+						// Handle non-success status codes
+						Console.WriteLine($"Error validating reCAPTCHA: {response.StatusCode}");
+						result = false;
+					}
+					return result;
 				}
-				return result;
-			}
-			catch (WebException ex)
-			{
-				throw ex;
+				catch (WebException ex)
+				{
+					throw ex;
+				}
 			}
 		}
 
@@ -55,15 +72,39 @@ namespace Assignment_1.Pages
         {
         }
 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> OnPostAsync()
 		{
-			if (ModelState.IsValid && ValidateCaptcha())
+			if (ModelState.IsValid && ValidateCaptchaAsync().Result)
 			{
 				var identityResult = await signInManager.PasswordSignInAsync(LModel.Email, LModel.Password,
 				LModel.RememberMe, false);
 				if (identityResult.Succeeded)
 				{
-					return RedirectToPage("Index");
+					//Create the security context
+					var claims = new List<Claim>
+					{
+						new Claim(ClaimTypes.Name, LModel.Email),
+						new Claim(ClaimTypes.Email, LModel.Email),
+						new Claim("Authorized", "Yes")
+                    };
+					var i = new ClaimsIdentity(claims, "MyCookieAuth");
+					ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(i);
+					await HttpContext.SignInAsync("MyCookieAuth", claimsPrincipal);
+					contxt.HttpContext.Session.SetString("LoggedIn", LModel.Email.ToString());
+                    string guid = Guid.NewGuid().ToString();
+					contxt.HttpContext.Session.SetString("AuthToken", guid);
+					Response.Cookies.Append("AuthToken", guid);
+                    var log = new AuditLog
+                    {
+                        UserId = LModel.Email,
+                        Action = "Logged In",
+                        Time = DateTime.Now,
+                    };
+                    authDbContext.AuditLogTable.Add(log);
+                    authDbContext.SaveChanges();
+                    return RedirectToPage("Index");
 				}
 				ModelState.AddModelError("", "Username or Password incorrect");
 			}

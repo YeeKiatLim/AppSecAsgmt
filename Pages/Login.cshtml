@@ -2,6 +2,9 @@
 @model Assignment_1.Pages.LoginModel
 @{
 }
+<head runat="server">
+	<script src="https://www.google.com/recaptcha/api.js?render=6LeBfGApAAAAAOTCGDqJfeRmDiJVpctW8fkJzEOT"></script>
+</head>
 
 <div class="container mt-5">
 
@@ -35,6 +38,7 @@
 
 				<input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response" />
 			</form>
+			<a class="nav-link text-dark" asp-area="" asp-page="/ChangePassword">Change Password</a>
 			<script>
 				grecaptcha.ready(function () {
 					grecaptcha.execute('6LeBfGApAAAAAOTCGDqJfeRmDiJVpctW8fkJzEOT', { action: 'Login' }).then(function (token) {
@@ -44,5 +48,4 @@
 			</script>
 		</div>
 	</div>
-	<script src="https://www.google.com/recaptcha/api.js?render=6LeBfGApAAAAAOTCGDqJfeRmDiJVpctW8fkJzEOT"></script>
 </div>

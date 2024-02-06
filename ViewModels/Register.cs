@@ -12,7 +12,7 @@ namespace Assignment_1.ViewModels
 		public string Email { get; set; }
 		[Required]
 		[DataType(DataType.Password)]
-		[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{12,}$", ErrorMessage = "Passwords must be at least 12 characters long and contain at least an upper case letter, lower case letter, digit and a symbol")]
+		[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{12,}$", ErrorMessage = "Password must be at least 12 characters long and contain at least an upper case letter, lower case letter, digit and a symbol")]
 		public string Password { get; set; }
 		[Required]
 		[DataType(DataType.Password)]
@@ -20,15 +20,25 @@ namespace Assignment_1.ViewModels
 		public string ConfirmPassword { get; set; }
         [Required]
         [DataType(DataType.Text)]
-        public string FullName { get; set; }
+		[RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\s)[A-Za-z\s]{1,}$", ErrorMessage = "Name can only have letters and spaces")]
+		public string FullName { get; set; }
         [Required]
         [DataType(DataType.CreditCard)]
-        public string CreditCard { get; set; }
+		[RegularExpression(@"^(?=.*\d)[\d]{16,16}$", ErrorMessage = "Credit Card No must be 16 digits")]
+		public string CreditCard { get; set; }
+		[Required]
+		[DataType(DataType.PhoneNumber)]
+		[RegularExpression(@"^(?=.*\d)[\d]{8,8}$", ErrorMessage = "Mobile Phone No must be 8 digits")]
+		public string PhoneNumber { get; set; }
 		[Required]
 		[DataType(DataType.Text)]
 		public string Gender { get; set; }
         [Required]
         [DataType(DataType.Text)]
-        public string DeliveryAddress { get; set; }
+		[RegularExpression(@"^(?=.*-)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\s)(?=.*\#)[-A-Za-z\d\s\#]{1,}$", ErrorMessage = "Delivery Address can only have letters, digits and spaces")]
+		public string DeliveryAddress { get; set; }
+        [Required]
+		[DataType(DataType.Text)]
+		public string AboutMe { get; set; }
     }
 }

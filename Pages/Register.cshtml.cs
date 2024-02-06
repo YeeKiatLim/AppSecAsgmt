@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
+using System.Web;
 
 namespace Assignment_1.Pages
 {
@@ -25,6 +25,8 @@ namespace Assignment_1.Pages
 		{
 		}
 
+		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> OnPostAsync()
 		{
 			if (ModelState.IsValid)
@@ -34,19 +36,20 @@ namespace Assignment_1.Pages
 
                 var user = new ApplicationUser()
 				{
-					UserName = RModel.Email,
-					Email = RModel.Email,
-					FullName = RModel.FullName,
+					UserName = HttpUtility.HtmlEncode(RModel.Email),
+					Email = HttpUtility.HtmlEncode(RModel.Email),
+					PhoneNumber = HttpUtility.HtmlEncode(RModel.PhoneNumber),
+					FullName = HttpUtility.HtmlEncode(RModel.FullName),
 					CreditCard = protector.Protect(RModel.CreditCard),
-					Gender = RModel.Gender,
-					DeliveryAddress = RModel.DeliveryAddress
+					Gender = HttpUtility.HtmlEncode(RModel.Gender),
+					DeliveryAddress = HttpUtility.HtmlEncode(RModel.DeliveryAddress),
+					AboutMe = HttpUtility.HtmlEncode(RModel.AboutMe)
 				};
 
 				var result = await userManager.CreateAsync(user, RModel.Password);
 				if (result.Succeeded)
 				{
-					await signInManager.SignInAsync(user, false);
-					return RedirectToPage("Index");
+					return RedirectToPage("Login");
 				}
 
 				foreach (var error in result.Errors)

@@ -14,14 +14,54 @@
 				<div asp-validation-summary="All" class="text-danger"></div>
 
 				<div class="mb-3">
+					<label class="form-label" asp-for="RModel.FullName">Full Name</label>
+					<input type="Text" asp-for="RModel.FullName" class="form-control" />
+					<span asp-validaton-for="RModel.FullName" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label" asp-for="RModel.Gender">Gender</label>
+					<div>
+						Male<input type="radio" asp-for="RModel.Gender" value="Male" />
+						Female<input type="radio" asp-for="RModel.Gender" value="Female" />
+						Nonbinary<input type="radio" asp-for="RModel.Gender" value="Nonbinary" />
+					</div>
+					<span asp-validaton-for="RModel.Gender" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
 					<label class="form-label" asp-for="RModel.Email">Email Address</label>
 					<input type="Text" asp-for="RModel.Email" class="form-control" />
 					<span asp-validaton-for="RModel.Email" class="text-danger"></span>
 				</div>
 
 				<div class="mb-3">
+					<label class="form-label" asp-for="RModel.PhoneNumber">Mobile Phone No.</label>
+					<input type="Text" asp-for="RModel.PhoneNumber" class="form-control" />
+					<span asp-validaton-for="RModel.PhoneNumber" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label" asp-for="RModel.CreditCard">Credit Card No.</label>
+					<input type="Text" asp-for="RModel.CreditCard" class="form-control" />
+					<span asp-validaton-for="RModel.CreditCard" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label" asp-for="RModel.DeliveryAddress">Delivery Address</label>
+					<input type="Text" asp-for="RModel.DeliveryAddress" class="form-control" />
+					<span asp-validaton-for="RModel.DeliveryAddress" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
+					<label class="form-label" asp-for="RModel.AboutMe">About Me</label>
+					<input type="Text" asp-for="RModel.AboutMe" class="form-control" />
+					<span asp-validaton-for="RModel.AboutMe" class="text-danger"></span>
+				</div>
+
+				<div class="mb-3">
 					<label class="form-label" asp-for="RModel.Password">Password</label>
-					<input type="Text" asp-for="RModel.Password" class="form-control" />
+					<input type="Text" asp-for="RModel.Password" class="form-control" id="password"/>
 					<span asp-validaton-for="RModel.Password" class="text-danger"></span>
 				</div>
 
@@ -32,9 +72,36 @@
 				</div>
 
 				<div class="mb-3">
+					<label class="form-label" id="lbl_pwdchecker"></label>
+				</div>
+
+				<div class="mb-3">
 					<button type="submit" class="btn btn-primary">Register</button>
 				</div>
 			</form>
 		</div>
 	</div>
+	<script>
+		function validate() {
+			var str = document.getElementById('password').value;
+			var lbl = document.getElementById('lbl_pwdchecker');
+
+			if (str.length < 8) {
+				lbl.innerHTML = "Password must be 8 characters or longer!";
+				lbl.style.color = "Red";
+
+				return ("too short");
+			}
+
+			if (str.search(/[0-9]/) == -1) {
+				lbl.innerHTML = "Password must include at least 1 number!";
+				lbl.style.color = "Red";
+
+				return ("no numbers");
+			}
+
+			lbl.innerHTML = "Excellent!";
+			lbl.style.color = "Blue";
+		}
+	</script>
 </div>

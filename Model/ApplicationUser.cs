@@ -9,5 +9,6 @@ namespace Assignment_1.Model
         public string CreditCard { get; set; }
         public string Gender { get; set; }
         public string DeliveryAddress {  get; set; }
+        public string AboutMe { get; set; }
     }
 }

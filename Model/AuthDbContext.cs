@@ -15,5 +15,6 @@ namespace Assignment_1.Model
 		{
 			string connectionString = _configuration.GetConnectionString("AuthConnectionString"); optionsBuilder.UseSqlServer(connectionString);
 		}
+		public DbSet<AuditLog> AuditLogTable { get; set; }
 	}
 }

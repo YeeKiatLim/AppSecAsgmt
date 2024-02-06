@@ -23,7 +23,7 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     @{
-                        if (SignInManager.IsSignedIn(User))
+                        if (SignInManager.IsSignedIn(User) | User.Identity.IsAuthenticated)
                         {
                             <ul class="navbar-nav flex-grow-1">
                                 <li class="nav-item">

@@ -18,9 +18,21 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDistributedMemoryCache(); //save session in memory
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromSeconds(30);
+    options.IdleTimeout = TimeSpan.FromSeconds(300);
 });
 
+builder.Services.AddAuthentication("MyCookieAuth").AddCookie("MyCookieAuth", options =>
+{
+	options.Cookie.Name = "MyCookieAuth";
+
+	options.AccessDeniedPath = "/Login";
+});
+
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("CanViewDetails",
+		policy => policy.RequireClaim("Authorized", "Yes"));
+});
 
 builder.Services.ConfigureApplicationCookie(Config =>
 {
@@ -42,15 +54,14 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseSession();
-
-app.UseStatusCodePagesWithRedirects("/errors/{0}");
-
 app.UseRouting();
 
-app.UseAuthentication();
+app.UseSession();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseStatusCodePagesWithRedirects("/errors/{0}");
 
 app.MapRazorPages();
 
